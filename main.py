@@ -20,6 +20,6 @@ async def on_message(message):
     word = message.content[5:]
     word = word.strip()
     response = lookup(word)
-    await message.channel.send(response)
+    await message.channel.send(response.definition)
 
 client.run(os.environ["TOKEN"])
