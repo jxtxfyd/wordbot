@@ -107,7 +107,7 @@ async def on_message(message):
         voice_client = discord.utils.get(client.voice_clients, guild=message.guild)
 
         if voice_client is None:
-          await voice.connect()
+          voice_client = await voice.connect()
         else:
           await voice_client.move_to(channel)
 
