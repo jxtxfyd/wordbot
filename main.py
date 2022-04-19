@@ -76,8 +76,9 @@ async def on_message(message):
       if u == user:
         score = s
 
-    def sf(val)
+    def sf(val):
       return val["score"]
+    
     scores.sort(key=sf, reverse=True)
     msg = f'Your score is {score}\n========================\n'
     idx = 1
