@@ -58,4 +58,3 @@ async def on_message(message):
     await message.channel.send(stats)
 
 client.run(os.environ["TOKEN"])
-# client.run('OTY2MDAwMjIwMjU5MzU2Njgy.Yl7Xzw.6D_QNOm-Yi4HfaYehORIfOBVl3k')
