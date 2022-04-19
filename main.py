@@ -57,7 +57,8 @@ async def on_message(message):
       fake = row["fake"]
 
     for word in args:
-      if (lookup(word)["isWord"]):
+      response = await lookup(word)
+      if (response["isWord"]):
         real += 1
       else:
         fake += 1
@@ -66,6 +67,7 @@ async def on_message(message):
   
   if message.content.startswith('$score'):
     score = None
+    cursor = conn.cursor()
     rows = cursor.execute('SELECT * FROM typescore')
     scores = []
 
@@ -73,7 +75,7 @@ async def on_message(message):
       u = r["user"]
       real = r["real"]
       fake = r["fake"]
-      s = (real / (real + fake)) * math.log(real + fake + 1, 2)
+      s = round((real / (real + fake)) * math.log(real + fake + 1, 2), 2)
       scores.append({"user": u, "score": s})
       if u == user:
         score = s
@@ -82,10 +84,10 @@ async def on_message(message):
       return val["score"]
     
     scores.sort(key=sf, reverse=True)
-    msg = f'Your score is {score}\n========================\n'
+    msg = f'Your score is {score}\n===========================\n'
     idx = 1
     for s in scores:
-      msg += f'{idx}. {s["user"]} - {s["score"]}\n'
+      msg += f'{idx}. {client.get_user(s["user"]).display_name} - {s["score"]}\n'
       idx += 1
     await message.channel.send(msg)
 

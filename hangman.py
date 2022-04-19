@@ -1,30 +1,21 @@
 import random
+import sqlite3
 
 class Hangman:
     chosen_word = ""
     guessed_letters = ""
     remaining_guesses = 6
 
-    words = {
-        1: "Elephant",
-        2: "Dictionary",
-        3: "Hackday",
-        4: "Virtual",
-        5: "Environment",
-        6: "Python",
-        7: "Tuesday",
-        8: "Heroku",
-        9: "Discord",
-        10: "Robot"
-    }
-
     game_ended = False
     game_won = False
 
     def start_game(self):
         random.seed()
-        key = random.randint(1, len(self.words))
-        self.chosen_word = self.words[key]
+        conn = sqlite3.connect('wordbot.db')
+        cursor = conn.cursor()
+        row = cursor.execute("select word from lookups order by RANDOM() LIMIT 1;").fetchone()
+        self.chosen_word = row[0]
+        conn.close()
 
         new_string = ""
         for i in range(0, len(self.chosen_word)):
