@@ -10,7 +10,7 @@ def lookup(word):
 
     if response.ok:
         data = response.json()
-        meanings = data[0].meanings
+        meanings = data[0].get("meanings")
 
         for m in meanings:
             definition += f'{m.partOfSpeech}'
