@@ -13,7 +13,7 @@ class Hangman:
         random.seed()
         conn = sqlite3.connect('wordbot.db')
         cursor = conn.cursor()
-        row = cursor.execute("select word from lookup order by RANDOM() LIMIT 1;").fetchone()
+        row = cursor.execute("select word from lookups order by RANDOM() LIMIT 1;").fetchone()
         self.chosen_word = row[0]
         conn.close()
 
