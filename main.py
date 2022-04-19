@@ -21,7 +21,7 @@ async def on_connect():
   conn.row_factory = sqlite3.Row
   with conn:
     conn.execute('CREATE TABLE IF NOT EXISTS lookups (user TEXT, word TEXT)')
-    conn.execute('CREATE TABLE IF NOT EXISTS typescore (user INTEGER PRIMARY KEY, real INTEGER, fake INTEGER)')
+    conn.execute('CREATE TABLE IF NOT EXISTS typescore (user INTEGER PRIMARY KEY, name TEXT, real INTEGER, fake INTEGER)')
 
 @client.event
 async def on_disconnect():
@@ -38,7 +38,6 @@ async def on_ready():
 async def on_message(message):
   global conn
   args = message.content.split(' ')
-  user = message.author.id
 
   if message.author == client.user:
     return
@@ -47,6 +46,8 @@ async def on_message(message):
     await message.channel.send('Hello!')
 
   if not message.content.startswith('$'):
+    user = message.author.id
+    name = str(message.author)
     real = 0
     fake = 0
 
@@ -63,9 +64,10 @@ async def on_message(message):
       else:
         fake += 1
 
-    conn.execute('INSERT OR REPLACE INTO typescore (user, real, fake) VALUES (?, ?, ?)', (user, real, fake))
+    conn.execute('INSERT OR REPLACE INTO typescore (user, name, real, fake) VALUES (?, ?, ?, ?)', (user, name, real, fake))
   
   if message.content.startswith('$score'):
+    user = message.author.id
     score = None
     cursor = conn.cursor()
     rows = cursor.execute('SELECT * FROM typescore')
@@ -73,10 +75,11 @@ async def on_message(message):
 
     for r in rows:
       u = r["user"]
+      name = r["name"]
       real = r["real"]
       fake = r["fake"]
       s = round((real / (real + fake)) * math.log(real + fake + 1, 2), 2)
-      scores.append({"user": u, "score": s})
+      scores.append({"user": u, "name", name, "score": s})
       if u == user:
         score = s
 
@@ -84,11 +87,13 @@ async def on_message(message):
       return val["score"]
     
     scores.sort(key=sf, reverse=True)
+
     msg = f'Your score is {score}\n===========================\n'
     idx = 1
     for s in scores:
-      msg += f'{idx}. {client.get_user(s["user"]).display_name} - {s["score"]}\n'
+      msg += f'{idx}. {s["name"]} - {s["score"]}\n'
       idx += 1
+      
     await message.channel.send(msg)
 
   if message.content.startswith('$lookup'):
