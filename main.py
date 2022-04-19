@@ -114,6 +114,7 @@ async def on_message(message):
         source = discord.FFmpegPCMAudio(response)
         voice_client.play(source, after=None)
       else:
+        # no voice channel, post a file
         print(response)
         await message.channel.send(response)
     else:
