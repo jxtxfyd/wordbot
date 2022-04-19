@@ -55,7 +55,8 @@ async def on_message(message):
       fake = row["fake"]
 
     for word in args:
-      if (lookup(word)["isWord"]):
+      response = await lookup(word)
+      if (response["isWord"]):
         real += 1
       else:
         fake += 1
@@ -64,6 +65,7 @@ async def on_message(message):
   
   if message.content.startswith('$score'):
     score = None
+    cursor = conn.cursor()
     rows = cursor.execute('SELECT * FROM typescore')
     scores = []
 
