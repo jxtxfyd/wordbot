@@ -1,15 +1,23 @@
-import requests
+import aiohttp
 
 url = 'https://api.dictionaryapi.dev/api/v2/entries/en/'
 
-def lookup(word):
+async def _get_definition(word):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f'{url}{word}') as r:
+            if r.status == 200:
+                js = await r.json()
+                return js
+            else:
+                return None
+
+async def lookup(word):
     isWord = True
     definition = ''
 
-    response = requests.get(f'{url}{word}')
+    data = await _get_definition(word)
 
-    if response.ok:
-        data = response.json()
+    if data is not None:
         meanings = data[0]["meanings"]
 
         for m in meanings:
@@ -25,3 +33,20 @@ def lookup(word):
         "isWord": isWord,
         "definition": definition
     }
+
+async def pronounce(word):
+    data = await _get_definition(word)
+    print(data)
+    
+    if data is None or len(data) == 0:
+        return None
+
+    phonetics = data[0].get('phonetics')
+    if phonetics is None:
+        return None
+
+    audio = next((p['audio'] for p in phonetics if 'audio' in p and p['audio'] != ''), None)
+    if audio is None:
+        return None
+
+    return audio

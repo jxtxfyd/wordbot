@@ -3,7 +3,7 @@ import os
 import sqlite3
 import logging
 from hangman import Hangman
-from dictionary import lookup
+from dictionary import lookup, pronounce
 
 logging.basicConfig(level=logging.INFO)
 client = discord.Client()
@@ -46,8 +46,32 @@ async def on_message(message):
     print(f'Inserting {message.author}, {query}')
     with conn:
       conn.execute('INSERT INTO lookups (user, word) VALUES (?, ?)', (str(message.author), query))
-    response = lookup(query)
+    response = await lookup(query)
     await message.channel.send(response["definition"])
+
+  if message.content.startswith('$pronounce'):
+    query = message.content.replace('$pronounce', '').split()[0]
+    response = await pronounce(query)
+
+    if response is not None:
+      # play the audio if the user is in a voice channel
+      if message.author.voice is not None:
+        channel = message.author.voice.channel
+        voice = discord.utils.get(message.guild.voice_channels, name=channel.name)
+        voice_client = discord.utils.get(client.voice_clients, guild=message.guild)
+
+        if voice_client is None:
+          await voice.connect()
+        else:
+          await voice_client.move_to(channel)
+
+        source = discord.FFmpegPCMAudio(response)
+        voice_client.play(source, after=None)
+      else:
+        print(response)
+        await message.channel.send(response)
+    else:
+      await message.channel.send(f"I'm sorry, {message.author.name}. I'm afraid I can't do that.")
 
   if message.content.startswith('$stats'):
     cursor = conn.cursor()
