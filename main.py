@@ -5,6 +5,8 @@ import logging
 import math
 from hangman import Hangman
 from dictionary import lookup, pronounce
+import aiohttp
+import io
 
 logging.basicConfig(level=logging.INFO)
 client = discord.Client()
@@ -115,8 +117,15 @@ async def on_message(message):
         voice_client.play(source, after=None)
       else:
         # no voice channel, post a file
-        print(response)
-        await message.channel.send(response)
+        async with aiohttp.ClientSession() as session:
+          async with session.get(response) as resp:
+            if resp.status != 200:
+              await message.channel.send("I'm sorry, I lost my voice")
+              return
+
+            data = io.BytesIO(await resp.read())
+            filename = response.split('/')[-1]
+            await message.channel.send(file=discord.File(data, filename))
     else:
       await message.channel.send(f"I'm sorry, {message.author.name}. I'm afraid I can't do that.")
 

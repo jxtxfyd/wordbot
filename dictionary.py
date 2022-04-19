@@ -41,12 +41,23 @@ async def pronounce(word):
     if data is None or len(data) == 0:
         return None
 
-    phonetics = data[0].get('phonetics')
-    if phonetics is None:
+    phonetics = []
+    for word in data:
+        sounds = word.get('phonetics')
+        if sounds is not None:
+            phonetics += sounds
+
+    if len(phonetics) == 0:
         return None
 
-    audio = next((p['audio'] for p in phonetics if 'audio' in p and p['audio'] != ''), None)
-    if audio is None:
+    urls = [p['audio'] for p in phonetics if 'audio' in p and p['audio'] != '']
+    print(f'URLs are {urls}')
+    if len(urls) == 0:
         return None
 
-    return audio
+    for country in ['ca', 'us', 'uk', 'au']:
+        for url in urls:
+            if f'-{country}.' in url:
+                return url
+
+    return urls[0]
