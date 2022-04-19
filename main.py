@@ -1,5 +1,6 @@
 import discord
 import os
+from dictionary import lookup
 
 client = discord.Client()
 
@@ -14,5 +15,11 @@ async def on_message(message):
 
   if message.content.startswith('$hello'):
     await message.channel.send('Hello!')
+
+  if message.content.startswith('-def '):
+    word = message.content[5:]
+    word = word.strip()
+    response = lookup(word)
+    await message.channel.send(response)
 
 client.run(os.environ["TOKEN"])
