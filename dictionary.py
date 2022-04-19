@@ -10,10 +10,12 @@ def lookup(word):
 
     if response.ok:
         data = response.json()
-        meanings = data[0].get("meanings")
+        meanings = data[0]["meanings"]
 
         for m in meanings:
-            definition += f'{m.partOfSpeech}'
+            definition += f'{m["partOfSpeech"]}\n\t'
+            first_def = m["definitions"][0]
+            definition += f'{first_def["definition"]}\n'
 
     else:
         isWord = False
