@@ -79,7 +79,7 @@ async def on_message(message):
       real = r["real"]
       fake = r["fake"]
       s = round((real / (real + fake)) * math.log(real + fake + 1, 2), 2)
-      scores.append({"user": u, "name", name, "score": s})
+      scores.append({"user": u, "name": name, "score": s})
       if u == user:
         score = s
 
